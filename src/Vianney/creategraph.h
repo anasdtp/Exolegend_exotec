@@ -2,7 +2,7 @@
 
 #include <vector>
 
-std::vector<int> BFS(int i_goal = 44, int j_goal = 44);
+std::vector<int> BFS(bool rocket_man = true, int i_goal = 0, int j_goal = 0);
 struct coordonnees
 {
     int i;
