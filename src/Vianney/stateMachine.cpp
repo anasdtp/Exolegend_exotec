@@ -1,6 +1,7 @@
 #include <iostream>
 #include <string>
-
+#include "Sparta/melee.h"
+#include "guardConditions.h"
 using namespace std;
 
 // Définition de la classe de la machine à états
@@ -24,66 +25,70 @@ public:
     // Méthode pour effectuer une transition d'état
     void transition()
     {
+        bool t_recherche_fusee = !gladiator->weapon->canLaunchRocket();
+        bool t_ennemi_proche = ennemi_proche();
+        bool t_recherche_cible = true;
+        bool t_tirer = true;
+        gladiator->log("Possède une fusée : %d", t_recherche_fusee);
         switch (currentState)
         {
         case State::ATTENTE:
-            if (t_recherche_fusee)
+            // on regarde s'il y a un robot au corps à corps sinon on recherche une fusée sinon on explore
+            if (t_ennemi_proche)
             {
-                currentState = State::RECHERCHE_FUSEE;
+
+                currentState = State::PVP;
             }
             if (t_recherche_fusee)
             {
                 currentState = State::RECHERCHE_FUSEE;
             }
-            break;
-        case State::STATE1:
-            if (condition2())
+
+            else
             {
-                currentState = State::STATE2;
+                currentState = State::EXPLORATION;
             }
             break;
-        case State::STATE2:
-            if (condition3())
+        case State::RECHERCHE_FUSEE:
+            currentState = State::ATTENTE;
+            break;
+        case State::EXPLORATION:
+            // on regarde si on peut tirer sinon on pvp si proche sinon retourne idle
+            if (t_recherche_cible)
             {
-                currentState = State::STATE3;
+                t_recherche_cible = false;
+                // attention a ne pas cycler
+                currentState = State::RECHERCHE_CIBLE;
+            }
+
+            if (t_ennemi_proche)
+            {
+                currentState = State::PVP;
+            }
+            else
+            {
+                currentState = State::ATTENTE;
             }
             break;
-        case State::STATE3:
-            if (condition4())
+        case State::PVP:
+            currentState = State::ATTENTE;
+            break;
+        case State::RECHERCHE_CIBLE:
+            // on regarde si on peut tirer sinon on pvp si proche sinon retourne idle
+            if (t_tirer)
             {
-                currentState = State::END;
+                // attention a ne pas cycler
+                currentState = State::TIRER;
+            }
+            else
+            {
+                currentState = State::EXPLORATION;
             }
             break;
-        case State::END:
-            // La machine est dans l'état final, rien à faire
+        case State::TIRER:
+            currentState = State::ATTENTE;
             break;
         }
-    }
-
-    // Méthodes de condition de garde pour chaque transition
-    bool condition1()
-    {
-        // Exemple de condition de garde pour la transition de INIT à STATE1
-        // Cette condition peut être basée sur des variables d'état ou des données externes
-        return true; // Exemple trivial, toujours vrai
-    }
-
-    bool condition2()
-    {
-        // Condition de garde pour la transition de STATE1 à STATE2
-        return true; // Exemple trivial, toujours vrai
-    }
-
-    bool condition3()
-    {
-        // Condition de garde pour la transition de STATE2 à STATE3
-        return true; // Exemple trivial, toujours vrai
-    }
-
-    bool condition4()
-    {
-        // Condition de garde pour la transition de STATE3 à END
-        return true; // Exemple trivial, toujours vrai
     }
 
     // Méthode pour récupérer l'état actuel de la machine
@@ -102,32 +107,10 @@ int main()
     StateMachine machine;
 
     // Boucle de démonstration de la machine à états
-    while (machine.getCurrentState() != StateMachine::State::END)
+    while (machine.getCurrentState() != StateMachine::State::ATTENTE)
     {
-        switch (machine.getCurrentState())
-        {
-        case StateMachine::State::INIT:
-            cout << "Machine dans l'état INIT." << endl;
-            break;
-        case StateMachine::State::STATE1:
-            cout << "Machine dans l'état STATE1." << endl;
-            break;
-        case StateMachine::State::STATE2:
-            cout << "Machine dans l'état STATE2." << endl;
-            break;
-        case StateMachine::State::STATE3:
-            cout << "Machine dans l'état STATE3." << endl;
-            break;
-        case StateMachine::State::END:
-            cout << "Machine dans l'état END." << endl;
-            break;
-        }
-
-        // Effectuer une transition
         machine.transition();
     }
-
-    cout << "La machine est maintenant dans l'état final (END)." << endl;
 
     return 0;
 }

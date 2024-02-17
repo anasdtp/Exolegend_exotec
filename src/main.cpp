@@ -12,11 +12,12 @@ Gladiator *gladiator;
 
 Position goal;
 
-
-void new_target(){
+void new_target()
+{
     std::vector<int> path = BFS();
     coord_list.size = path.size();
-    for (int i = 0; i < coord_list.size; i++)  {
+    for (int i = 0; i < coord_list.size; i++)
+    {
         coord_list.path_coord[i].i = path[i] % 12;
         coord_list.path_coord[i].j = path[i] / 12;
     }
@@ -52,7 +53,8 @@ void loop()
         current = gladiator->robot->getData().position;
         go_to(goal, current, gladiator);
 
-        if (count == simplified_coord_list.size){
+        if (count == simplified_coord_list.size)
+        {
             new_target();
             gladiator->log("new target");
             count = 0;
