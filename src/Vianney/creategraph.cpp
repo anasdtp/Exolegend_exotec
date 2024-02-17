@@ -9,7 +9,7 @@
 #include <algorithm>
 using namespace std;
 
-vector<int> BFS(int i_goal, int j_goal)
+vector<int> BFS(bool rocket_man, int i_goal, int j_goal)
 {
     // Marquer tous les sommets comme non visités
     bool visited[144] = {false}; // les coordonnées des sommets sont codées en un int a, tq : a=i+j*12
@@ -27,7 +27,6 @@ vector<int> BFS(int i_goal, int j_goal)
     visited[start_coord] = true;
     q.push(start_coord);
     unordered_map<int, int> path_dict;
-    bool rocket_man = (i_goal == 44);
 
     while (!q.empty())
     {
