@@ -39,10 +39,8 @@ vector<int> BFS()
         const MazeSquare *sq = gladiator->maze->getSquare(i, j);
         Coin c = sq->coin;
         uint8_t rocket = c.value;
-        if (rocket)
+        if (rocket && start_coord != currentVertex)
         {
-            gladiator->log("FUSEE TROUVEE en %d,%d", i, j);
-
             end_coord = currentVertex;
             while (!q.empty())
             {
@@ -55,7 +53,6 @@ vector<int> BFS()
         {
 
             int adjacentVertex = result[i];
-            gladiator->log("case visitée :%d,%d", adjacentVertex % 12, adjacentVertex / 12);
             // Si un sommet adjacent n'a pas encore été visité, le marquer comme visité
             // et l'ajouter à la file
             if (adjacentVertex != 200)
