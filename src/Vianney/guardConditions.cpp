@@ -1,6 +1,6 @@
 #include "math.h"
 #include "guardConditions.h"
-#define dist_thresh 3
+#define dist_thresh 1.7
 using namespace std;
 
 float distEucl(int ia, int ja, int ib, int jb)

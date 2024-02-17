@@ -2,115 +2,121 @@
 #include <string>
 #include "Sparta/melee.h"
 #include "guardConditions.h"
+#include "graphstrategy.h"
 using namespace std;
 
-// // Définition de la classe de la machine à états
-// class StateMachine
-// {
-// public:
-//     // Énumération des états possibles
-//     enum class State
-//     {
-//         ATTENTE,
-//         RECHERCHE_FUSEE,
-//         EXPLORATION,
-//         PVP,
-//         RECHERCHE_CIBLE,
-//         TIRER
-//     };
-
-//     // Constructeur
-//     StateMachine() : currentState(State::ATTENTE) {}
-
-// Méthode pour effectuer une transition d'état
-void transition()
+// Définition de la classe de la machine à états
+class StateMachine
 {
-    bool t_recherche_fusee = !gladiator->weapon->canLaunchRocket();
-    bool t_ennemi_proche = ennemi_proche();
-    bool t_recherche_cible = true;
-    bool t_tirer = true;
-    gladiator->log("Possède une fusée : %d", t_recherche_fusee);
-    switch (currentState)
+public:
+    // Énumération des états possibles
+    enum class State
     {
-    case State::ATTENTE:
-        // on regarde s'il y a un robot au corps à corps sinon on recherche une fusée sinon on explore
-        if (t_ennemi_proche)
-        {
+        ATTENTE,
+        RECHERCHE_FUSEE,
+        EXPLORATION,
+        PVP,
+        RECHERCHE_CIBLE,
+        TIRER
+    };
 
-            currentState = State::PVP;
-        }
-        if (t_recherche_fusee)
-        {
-            currentState = State::RECHERCHE_FUSEE;
-        }
+    // Constructeur
+    StateMachine() : currentState(State::ATTENTE) {}
 
-        else
+    // Méthode pour effectuer une transition d'état
+    void transition()
+    {
+        bool t_recherche_fusee = !gladiator->weapon->canLaunchRocket();
+        bool t_ennemi_proche = ennemi_proche();
+        bool t_recherche_cible = true;
+        bool t_tirer = true;
+        gladiator->log("Possède une fusée : %d", t_recherche_fusee);
+        switch (currentState)
         {
-            currentState = State::EXPLORATION;
-        }
-        break;
-    case State::RECHERCHE_FUSEE:
-        currentState = State::ATTENTE;
-        break;
-    case State::EXPLORATION:
-        // on regarde si on peut tirer sinon on pvp si proche sinon retourne idle
-        if (t_recherche_cible)
-        {
-            t_recherche_cible = false;
-            // attention a ne pas cycler
-            currentState = State::RECHERCHE_CIBLE;
-        }
+        case State::ATTENTE:
+            // on regarde s'il y a un robot au corps à corps sinon on recherche une fusée sinon on explore
+            if (t_ennemi_proche)
+            {
+                //______ recherche position robot allié____________
+                currentState = State::PVP;
+            }
+            if (t_recherche_fusee)
+            {
+                currentState = State::RECHERCHE_FUSEE;
+                // APPEL A FONCTION NEW MISSILE
+            }
 
-        if (t_ennemi_proche)
-        {
-            currentState = State::PVP;
-        }
-        else
-        {
+            else
+            {
+                currentState = State::EXPLORATION;
+            }
+            break;
+
+        case State::RECHERCHE_FUSEE:
             currentState = State::ATTENTE;
+            break;
+
+        case State::EXPLORATION:
+            //____lance exploration___________
+            vector<int> path = BFSPruned();
+            // LANCER GOTO AVEC ROBOT
+            // on regarde si on peut tirer sinon on pvp si proche sinon retourne idle
+            if (t_recherche_cible)
+            {
+
+                // attention a ne pas cycler
+                currentState = State::RECHERCHE_CIBLE;
+            }
+
+            if (t_ennemi_proche)
+            {
+
+                currentState = State::PVP;
+            }
+            else
+            {
+                currentState = State::ATTENTE;
+            }
+            break;
+        case State::PVP:
+            //______ recherche position robot allié____________
+            RobotData my_data = gladiator->robot->getData();
+            RobotData ally_data;
+            RobotList ids_list = gladiator->game->getPlayingRobotsId();
+            for (int i = 0; i < 4; i++)
+            {
+
+                if ((ids_list.ids[i] == 121 || ids_list.ids[i] != 120) && ids_list.ids[i] != my_data.id)
+                {
+                    ally_data = gladiator->game->getOtherRobotData(ids_list.ids[i]);
+                }
+            }
+            //_________________________________________________
+
+            SpartanMode(gladiator, ally_data.position);
+            currentState = State::ATTENTE;
+            break;
+        case State::RECHERCHE_CIBLE:
+            t_recherche_cible = false;
+            // on regarde si on peut tirer sinon on pvp si proche sinon retourne idle
+            if (t_tirer)
+            {
+
+                currentState = State::TIRER;
+            }
+            else
+            {
+                currentState = State::EXPLORATION;
+            }
+            break;
+        case State::TIRER:
+            gladiator->weapon->launchRocket();
+            currentState = State::ATTENTE;
+            break;
         }
-        break;
-    case State::PVP:
-        currentState = State::ATTENTE;
-        break;
-    case State::RECHERCHE_CIBLE:
-        // on regarde si on peut tirer sinon on pvp si proche sinon retourne idle
-        if (t_tirer)
-        {
-            // attention a ne pas cycler
-            currentState = State::TIRER;
-        }
-        else
-        {
-            currentState = State::EXPLORATION;
-        }
-        break;
-    case State::TIRER:
-        currentState = State::ATTENTE;
-        break;
     }
-}
 
-//     // Méthode pour récupérer l'état actuel de la machine
-//     State getCurrentState() const
-//     {
-//         return currentState;
-//     }
-
-// private:
-//     // Variable d'état actuelle de la machine
-//     State currentState;
-// };
-
-// int main()
-// {
-//     StateMachine machine;
-
-// Boucle de démonstration de la machine à états
-while (machine.getCurrentState() != StateMachine::State::ATTENTE)
-{
-    machine.transition();
-}
-
-//     return 0;
-// }
+private:
+    // Variable d'état actuelle de la machine
+    State currentState;
+};
