@@ -3,10 +3,10 @@
 
 #define THRESHOLD 0.1
 
-extern float kw, kv, wlimit, vlimit, erreurPos, squareSize;
+extern float kw, kv, wlimit, vlimit, erreurPos;
 
-Position getSquareCoor(const MazeSquare *square);
-Position getSquareCoor(uint8_t i, uint8_t j);
+Position getSquareCoor(const MazeSquare *square, float squareSize);
+Position getSquareCoor(uint8_t i, uint8_t j, float squareSize);
 float distance(const Position &p1, const Position &p2);
 
 double reductionAngle(double x);

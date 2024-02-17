@@ -6,22 +6,22 @@ float wlimit = 3.f;
 float vlimit = 0.3f;
 float erreurPos = 0.07;
 
-float squareSize;
-
-Position getSquareCoor(const MazeSquare *square){
-    return getSquareCoor(square->i, square->j);
+Position getSquareCoor(const MazeSquare *square, float squareSize)
+{
+    return getSquareCoor(square->i, square->j, squareSize);
 }
 
-Position getSquareCoor(uint8_t i, uint8_t j){
+Position getSquareCoor(uint8_t i, uint8_t j, float squareSize)
+{
     Position coor;
-
     coor.x = (i + 0.5) * squareSize;
     coor.y = (j + 0.5) * squareSize;
 
-    return coor;   
+    return coor;
 }
 
-float distance(const Position &p1, const Position &p2){
+float distance(const Position &p1, const Position &p2)
+{
     return sqrt(pow((p1.x - p2.x), 2) + pow((p1.y - p2.y), 2));
 }
 
