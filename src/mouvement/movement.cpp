@@ -1,9 +1,9 @@
 #include "movement.h"
 
-float kw = 1.2;
-float kv = 1.f;
+float kw = 10.f;
+float kv = 2.f;
 float wlimit = 3.f;
-float vlimit = 0.3f;
+float vlimit = 1.f;
 float erreurPos = 0.07;
 
 Position getSquareCoor(const MazeSquare *square, float squareSize)
