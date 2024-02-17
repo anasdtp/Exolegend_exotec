@@ -3,11 +3,11 @@
 #include "Sparta/melee.h"
 #include "guardConditions.h"
 #include "graphstrategy.h"
+#include "GameData\GameData.h"
 
 class StateMachine
 {
 public:
-    GameState *game;
     enum class State
     {
         ATTENTE,
@@ -18,6 +18,7 @@ public:
         TIRER
     };
 
+    GameState *game;
     StateMachine(GameState *game);
 
     void transition();

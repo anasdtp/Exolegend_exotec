@@ -37,7 +37,7 @@ vector<int> BFS(GameState *game, bool rocket_man, int i_goal, int j_goal)
         int j = currentVertex / 12;
         q.pop();
         int *result = getCaseNeighboor(i, j, game);
-        const MazeSquare *sq = gladiator->maze->getSquare(i, j);
+        const MazeSquare *sq = game->gladiator->maze->getSquare(i, j);
         Coin c = sq->coin;
         uint8_t rocket = c.value;
         if (rocket && rocket_man)
@@ -53,7 +53,7 @@ vector<int> BFS(GameState *game, bool rocket_man, int i_goal, int j_goal)
         {
             if (sq->i == i_goal && sq->j == j_goal)
             {
-                gladiator->log("CASE OBJECTIF TROUVEE en %d,%d", i, j);
+                game->gladiator->log("CASE OBJECTIF TROUVEE en %d,%d", i, j);
                 end_coord = currentVertex;
                 while (!q.empty())
                 {

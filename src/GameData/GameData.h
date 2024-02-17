@@ -1,6 +1,7 @@
 #pragma once
 #include "gladiator.h"
-#include "Vianney/creategraph.h"
+#define max_parth_finder_size 24
+
 struct coordonnees
 {
     int i;
