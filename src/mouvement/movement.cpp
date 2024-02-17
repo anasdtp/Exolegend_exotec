@@ -1,6 +1,6 @@
 #include "movement.h"
 
-float kw = 15.f;
+float kw = 3.f;
 float kv = 0.75f;
 float wlimit = 3.f;
 float vlimit = 1.f;
