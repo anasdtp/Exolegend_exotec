@@ -27,9 +27,10 @@ vector<int> BFSPruned()
     visited[start_coord] = true; // Marquer le sommet de départ comme visité et l'ajouter à la file
     q.push(start_coord);
     unordered_map<int, tuple<int, int>> path_dict; // key,pred,cost
-    int depth_goal = 50;
+    int depth_goal = 50;                           // nombre de noeud à parcourir
     int depth = 1;
-
+    int index_min;
+    int min = 500;
     while (depth < depth_goal)
     {
         // Extraire un sommet de la file
@@ -57,15 +58,20 @@ vector<int> BFSPruned()
                     tuple<int, int> t;
                     get<0>(t) = currentVertex;
                     const MazeSquare *sqr = gladiator->maze->getSquare(i_a, j_a);
-                    get<1>(t) = heuristic(sqr);
+                    int h = heuristic(sqr); // on calcule les heuristiques lorsqu'on regarde les noeuds voisins sans les visiter
+                    get<1>(t) = h;
                     path_dict[adjacentVertex] = t;
+                    if (h < min)
+                    {
+                        index_min = adjacentVertex;
+                    }
                 }
             }
         }
         depth++;
     }
     // trouve la case de plus faible cout
-    end_coord = 60;
+    end_coord = index_min;
     // trouve le chemin vers la case de plus faible cout
     vector<int> path;
     int current = end_coord;
@@ -81,6 +87,23 @@ vector<int> BFSPruned()
 
 int heuristic(const MazeSquare *sqr)
 {
+    // si c'est proche du bord
+    int h = 0;
+    uint32_t time = millis() / 1000; // temps en secondes
+    int i = sqr->i;
+    int j = sqr->j;
+    gladiator->log("TIME %d : ", time);
 
-    return 0;
+    uint32_t time_thresh_init = 8; // temps à partir du quel il faut faire attention au shr
+    uint32_t time_between_shrinking = 4;
+    if (time > time_thresh_init)
+    {
+        int shrink_progress = (time - 8) / time_between_shrinking;
+        if (i <= shrink_progress || (12 - i) <= shrink_progress || j <= shrink_progress || (12 - j) <= shrink_progress)
+        {
+            gladiator->log("case a éviter en %d,%d", i, j);
+            h += 500;
+        }
+    }
+    return h;
 }
