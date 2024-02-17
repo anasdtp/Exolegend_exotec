@@ -6,7 +6,7 @@ StateMachine::StateMachine(GameState *game) : game(game), currentState(State::AT
 void StateMachine::transition()
 {
     bool t_recherche_fusee = !game->gladiator->weapon->canLaunchRocket();
-    bool t_ennemi_proche = ennemi_proche();
+    bool t_ennemi_proche = ennemi_proche(game->gladiator);
     bool t_recherche_cible = true;
     bool t_tirer = true;
     game->gladiator->log("Possède une fusée : %d", t_recherche_fusee);
@@ -33,18 +33,20 @@ void StateMachine::transition()
             break;
 
         case State::EXPLORATION:
-            std::vector<int> path = BFSPruned(game);
-            if (t_recherche_cible)
             {
-                currentState = State::RECHERCHE_CIBLE;
-            }
-            if (t_ennemi_proche)
-            {
-                currentState = State::PVP;
-            }
-            else
-            {
-                currentState = State::ATTENTE;
+                std::vector<int> path = BFSPruned(game);
+                if (t_recherche_cible)
+                {
+                    currentState = State::RECHERCHE_CIBLE;
+                }
+                if (t_ennemi_proche)
+                {
+                    currentState = State::PVP;
+                }
+                else
+                {
+                    currentState = State::ATTENTE;
+                }
             }
             break;
 

@@ -19,11 +19,9 @@ public:
     };
 
     GameState *game;
+    State currentState;
     StateMachine(GameState *game);
 
     void transition();
     void executePVP();
-
-private:
-    State currentState;
 };
