@@ -13,8 +13,18 @@ Gladiator *gladiator;
 Position goal;
 
 
-void new_target(){
+void new_missile(){
     std::vector<int> path = BFS();
+    coord_list.size = path.size();
+    for (int i = 0; i < coord_list.size; i++)  {
+        coord_list.path_coord[i].i = path[i] % 12;
+        coord_list.path_coord[i].j = path[i] / 12;
+    }
+    simplified_coord_list = createCommands(coord_list);
+}
+
+void new_target(){
+    std::vector<int> path = BFS(12, 6);
     coord_list.size = path.size();
     for (int i = 0; i < coord_list.size; i++)  {
         coord_list.path_coord[i].i = path[i] % 12;
