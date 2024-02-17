@@ -39,8 +39,10 @@ void reset()
     gladiator->log("_______PATH________");
     gladiator->log("_______PATHS_SIMPLIFIED________");
     simplified_coord_list = createCommands(coord_list);
+    for (int i = 0; i < simplified_coord_list.size; ++i)
+        gladiator->log(" i=%d; j=%d -------", simplified_coord_list.path_coord[i].i, simplified_coord_list.path_coord[i].j);
     gladiator->log("_______PATH_SIMPLIFIED________");
-
+        
     // initialisation de toutes vos variables avant le début d'un match
     goal = gladiator->robot->getData().position;
 }
@@ -58,6 +60,5 @@ void loop()
             goal = getSquareCoor(simplified_coord_list.path_coord[count].i, simplified_coord_list.path_coord[count].j, caseSize);
             ++count;
         }
-        delay(200);
     }
 }
