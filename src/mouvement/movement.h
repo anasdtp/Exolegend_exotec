@@ -1,7 +1,7 @@
 #pragma once
 #include "gladiator.h"
 
-#define THRESHOLD 0.1
+#define THRESHOLD 0.07
 
 extern float kw, kv, wlimit, vlimit, erreurPos;
 

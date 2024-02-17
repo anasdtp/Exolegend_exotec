@@ -12,6 +12,17 @@ Gladiator *gladiator;
 
 Position goal;
 
+
+void new_target(){
+    std::vector<int> path = BFS();
+    coord_list.size = path.size();
+    for (int i = 0; i < coord_list.size; i++)  {
+        coord_list.path_coord[i].i = path[i] % 12;
+        coord_list.path_coord[i].j = path[i] / 12;
+    }
+    simplified_coord_list = createCommands(coord_list);
+}
+
 void reset();
 void setup()
 {
@@ -26,28 +37,13 @@ void reset()
 {
     // fonction de reset:
     caseSize = gladiator->maze->getSquareSize();
-    std::vector<int> path = BFS();
-    coord_list.size = path.size();
-
-    gladiator->log("_______PATH________");
-    for (int i = 0; i < coord_list.size; i++)
-    {
-        coord_list.path_coord[i].i = path[i] % 12;
-        coord_list.path_coord[i].j = path[i] / 12;
-        gladiator->log(" i=%d; j=%d -------", coord_list.path_coord[i].i, coord_list.path_coord[i].j);
-    }
-    gladiator->log("_______PATH________");
-    gladiator->log("_______PATHS_SIMPLIFIED________");
-    simplified_coord_list = createCommands(coord_list);
-    for (int i = 0; i < simplified_coord_list.size; ++i)
-        gladiator->log(" i=%d; j=%d -------", simplified_coord_list.path_coord[i].i, simplified_coord_list.path_coord[i].j);
-    gladiator->log("_______PATH_SIMPLIFIED________");
-        
+    new_target();
     // initialisation de toutes vos variables avant le début d'un match
     goal = gladiator->robot->getData().position;
 }
 Position current;
 uint8_t count = 0;
+bool shit = true;
 void loop()
 {
     if (gladiator->game->isStarted())
@@ -55,9 +51,17 @@ void loop()
         // code de votre stratégie
         current = gladiator->robot->getData().position;
         go_to(goal, current, gladiator);
+
+        if (count == simplified_coord_list.size){
+            new_target();
+            gladiator->log("new target");
+            count = 0;
+        }
+
         if (distance(current, goal) <= THRESHOLD && count < simplified_coord_list.size)
         {
             goal = getSquareCoor(simplified_coord_list.path_coord[count].i, simplified_coord_list.path_coord[count].j, caseSize);
+            gladiator->log("i: %d | j: %d", simplified_coord_list.path_coord[count].i, simplified_coord_list.path_coord[count].j);
             ++count;
         }
     }

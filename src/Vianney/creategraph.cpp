@@ -41,8 +41,6 @@ vector<int> BFS(bool rocket_man, int i_goal, int j_goal)
         uint8_t rocket = c.value;
         if (rocket && rocket_man)
         {
-            gladiator->log("FUSEE TROUVEE en %d,%d", i, j);
-
             end_coord = currentVertex;
             while (!q.empty())
             {
@@ -68,7 +66,6 @@ vector<int> BFS(bool rocket_man, int i_goal, int j_goal)
         {
 
             int adjacentVertex = result[i];
-            gladiator->log("case visitée :%d,%d", adjacentVertex % 12, adjacentVertex / 12);
             // Si un sommet adjacent n'a pas encore été visité, le marquer comme visité
             // et l'ajouter à la file
             if (adjacentVertex != 200)
