@@ -9,7 +9,7 @@
 GameState *game;
 Gladiator *gladiator;
 
-coordonnees go[] ={
+coordonnees go[] = {
     coordonnees{0, 4},
     coordonnees{1, 4},
     coordonnees{2, 6},
@@ -27,9 +27,10 @@ coordonnees go[] ={
 
 void new_missile()
 {
-    std::vector<int> path = BFS();
+    std::vector<int> path = BFS(game);
     game->coord_list.size = path.size();
-    for (int i = 0; i < game->coord_list.size; i++)  {
+    for (int i = 0; i < game->coord_list.size; i++)
+    {
         game->coord_list.path_coord[i].i = path[i] % 12;
         game->coord_list.path_coord[i].j = path[i] / 12;
     }
@@ -38,9 +39,10 @@ void new_missile()
 
 void new_target(int i, int j)
 {
-    std::vector<int> path = BFS(false, i, j);
+    std::vector<int> path = BFS(game, false, i, j);
     game->coord_list.size = path.size();
-    for (int i = 0; i < game->coord_list.size; i++)  {
+    for (int i = 0; i < game->coord_list.size; i++)
+    {
         game->coord_list.path_coord[i].i = path[i] % 12;
         game->coord_list.path_coord[i].j = path[i] / 12;
     }
@@ -78,7 +80,8 @@ void loop()
         current = gladiator->robot->getData().position;
         go_to(game->goal, current, gladiator);
 
-        if (count == game->simplified_coord_list.size && f < 12){
+        if (count == game->simplified_coord_list.size && f < 12)
+        {
             new_target(go[f].i, go[f].j);
             gladiator->log("new target");
             count = 0;

@@ -7,16 +7,17 @@
 #include "creategraph.h"
 #include <unordered_map>
 #include <algorithm>
+
 using namespace std;
 
-vector<int> BFS(bool rocket_man, int i_goal, int j_goal)
+vector<int> BFS(GameState *game, bool rocket_man, int i_goal, int j_goal)
 {
     // Marquer tous les sommets comme non visités
     bool visited[144] = {false}; // les coordonnées des sommets sont codées en un int a, tq : a=i+j*12
 
     // position du robot comme case de départ
 
-    const MazeSquare *square = gladiator->maze->getNearestSquare();
+    const MazeSquare *square = game->gladiator->maze->getNearestSquare();
     uint8_t i_index = square->i; // indice colonne selon ma convention
     uint8_t j_index = square->j; // indice ligne selon ma convention
     int start_coord = i_index + j_index * 12;
@@ -35,7 +36,7 @@ vector<int> BFS(bool rocket_man, int i_goal, int j_goal)
         int i = currentVertex % 12;
         int j = currentVertex / 12;
         q.pop();
-        int *result = getCaseNeighboor(i, j);
+        int *result = getCaseNeighboor(i, j, game);
         const MazeSquare *sq = gladiator->maze->getSquare(i, j);
         Coin c = sq->coin;
         uint8_t rocket = c.value;

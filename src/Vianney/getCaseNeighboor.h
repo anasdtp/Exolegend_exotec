@@ -1,6 +1,5 @@
 #include "gladiator.h"
 #include <vector>
+#include "GameData/GameData.h"
 
-extern Gladiator *gladiator;
-
-int *getCaseNeighboor(int i, int j);
+int *getCaseNeighboor(int i, int j, GameState *game);

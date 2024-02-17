@@ -1,9 +1,21 @@
 #pragma once
 #include "gladiator.h"
 #include "Vianney/creategraph.h"
+struct coordonnees
+{
+    int i;
+    int j;
+};
 
-class GameState{
-    public:
+struct pathFinder
+{
+    int size;
+    coordonnees path_coord[max_parth_finder_size];
+};
+
+class GameState
+{
+public:
     Gladiator *gladiator;
     RobotData myData;
     RobotData allyData;

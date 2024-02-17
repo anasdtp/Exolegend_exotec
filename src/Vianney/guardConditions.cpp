@@ -10,7 +10,7 @@ float distEucl(int ia, int ja, int ib, int jb)
     return sqrt(dx * dx + dy * dy);
 }
 
-bool ennemi_proche()
+bool ennemi_proche(Gladiator *gladiator)
 {
     bool near = false;
     RobotData my_data = gladiator->robot->getData();

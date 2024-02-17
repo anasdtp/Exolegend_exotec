@@ -3,16 +3,15 @@
 
 using namespace std;
 
-int *getCaseNeighboor(int i, int j)
+int *getCaseNeighboor(int i, int j, GameState *game)
 {
 
     static int arr[4] = {200, 200, 200, 200}; // 200= il y a un mur
 
     const MazeSquare *square;
 
-    square = gladiator->maze->getSquare(i, j); // GFA 4.7.1
+    square = game->gladiator->maze->getSquare(i, j); // GFA 4.7.1
 
-    
     // vérifier s'il a un mur au dessus
     if (square->northSquare == nullptr)
     {
