@@ -3,7 +3,7 @@
 #include <vector>
 
 std::vector<int> BFSPruned();
-int heuristic(MazeSquare);
+int heuristic(const MazeSquare *sqr);
 struct coordonnees
 {
     int i;

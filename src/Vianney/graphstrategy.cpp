@@ -4,7 +4,7 @@
 #include <unordered_set>
 #include <tuple>
 #include "getcaseneighboor.h"
-#include "creategraph.h"
+#include "graphstrategy.h"
 #include <unordered_map>
 #include <algorithm>
 using namespace std;
@@ -38,9 +38,6 @@ vector<int> BFSPruned()
         int j = currentVertex / 12;
         q.pop();
         int *result = getCaseNeighboor(i, j);
-        const MazeSquare *sq = gladiator->maze->getSquare(i, j);
-        Coin c = sq->coin;
-        uint8_t rocket = c.value;
 
         for (int i = 0; i < 4; ++i) // Parcourir tous les sommets adjacents du sommet courant
         {
@@ -68,7 +65,7 @@ vector<int> BFSPruned()
         depth++;
     }
     // trouve la case de plus faible cout
-
+    end_coord = 60;
     // trouve le chemin vers la case de plus faible cout
     vector<int> path;
     int current = end_coord;

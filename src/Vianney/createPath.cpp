@@ -7,18 +7,24 @@ pathFinder createCommands(pathFinder coord_list) // crée une suite d'instructio
 {
     int c = 0;
     int p = 0;
-    coord_list_simplified.path_coord[0] = coord_list.path_coord[0]; // taille p+1
+    coord_list_simplified.path_coord[0] = coord_list.path_coord[0];
 
     while (c < coord_list.size)
     {
         int k = 0;
-        while (coord_list.path_coord[c].i == coord_list.path_coord[c + k].i)
+        if (coord_list.path_coord[c].i == coord_list.path_coord[c + 1].i)
         {
-            k++;
+            while (coord_list.path_coord[c].i == coord_list.path_coord[c + k].i)
+            {
+                k++;
+            }
         }
-        while (coord_list.path_coord[c].i != coord_list.path_coord[c + k].i)
+        else
         {
-            k++;
+            while (coord_list.path_coord[c].i != coord_list.path_coord[c + k].i)
+            {
+                k++;
+            }
         }
         p++;
         coord_list_simplified.path_coord[p] = coord_list.path_coord[c + k];
