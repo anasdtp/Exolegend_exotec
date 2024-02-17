@@ -9,7 +9,7 @@
 #include <algorithm>
 using namespace std;
 
-vector<int> BFS()
+vector<int> BFS(int i_goal, int j_goal)
 {
     // Marquer tous les sommets comme non visités
     bool visited[144] = {false}; // les coordonnées des sommets sont codées en un int a, tq : a=i+j*12
@@ -27,6 +27,7 @@ vector<int> BFS()
     visited[start_coord] = true;
     q.push(start_coord);
     unordered_map<int, int> path_dict;
+    bool rocket_man = (i_goal == 44);
 
     while (!q.empty())
     {
@@ -39,7 +40,7 @@ vector<int> BFS()
         const MazeSquare *sq = gladiator->maze->getSquare(i, j);
         Coin c = sq->coin;
         uint8_t rocket = c.value;
-        if (rocket && start_coord != currentVertex)
+        if (rocket && rocket_man)
         {
             end_coord = currentVertex;
             while (!q.empty())
@@ -47,6 +48,19 @@ vector<int> BFS()
                 q.pop();
             }
             break;
+        }
+        else
+        {
+            if (sq->i == i_goal && sq->j == j_goal)
+            {
+                gladiator->log("CASE OBJECTIF TROUVEE en %d,%d", i, j);
+                end_coord = currentVertex;
+                while (!q.empty())
+                {
+                    q.pop();
+                }
+                break;
+            }
         }
         // Parcourir tous les sommets adjacents du sommet courant
         for (int i = 0; i < 4; ++i)
