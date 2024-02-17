@@ -25,7 +25,8 @@ coordonnees go[] ={
 
 };
 
-void new_missile(){
+void new_missile()
+{
     std::vector<int> path = BFS();
     game->coord_list.size = path.size();
     for (int i = 0; i < game->coord_list.size; i++)  {
@@ -35,7 +36,8 @@ void new_missile(){
     game->simplified_coord_list = createCommands(game->coord_list);
 }
 
-void new_target(int i, int j){
+void new_target(int i, int j)
+{
     std::vector<int> path = BFS(false, i, j);
     game->coord_list.size = path.size();
     for (int i = 0; i < game->coord_list.size; i++)  {
