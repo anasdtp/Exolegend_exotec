@@ -47,11 +47,13 @@ struct Ordre_deplacement
 
 extern float kw, kv, wlimit, vlimit, erreurPos;
 
-extern struct Ordre_deplacement liste;
-extern bool finMvtElem, next_action;
 
 extern float acc_max, v_max, ta, d_max;
 extern int etat_automate_depl;
+
+extern struct Ordre_deplacement liste;
+extern bool finMvtElem, next_action;
+
 
 
 
