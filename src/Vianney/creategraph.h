@@ -1,5 +1,7 @@
 #pragma once
-#define max_parth_finder_size 24
+#ifndef max_parth_finder_size
+#define max_parth_finder_size 32
+#endif
 #include <vector>
 #include "GameData/GameData.h"
 

@@ -3,7 +3,7 @@
 #include "Sparta/melee.h"
 #include "guardConditions.h"
 #include "graphstrategy.h"
-#include "GameData\GameData.h"
+#include "GameData/GameData.h"
 
 class StateMachine
 {
@@ -20,8 +20,10 @@ public:
 
     GameState *game;
     State currentState;
+
+    int etat_exploration;
     StateMachine(GameState *game);
 
-    void transition();
+    void machine();
     void executePVP();
 };

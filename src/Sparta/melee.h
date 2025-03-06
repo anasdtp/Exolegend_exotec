@@ -1,5 +1,5 @@
 #pragma once
-#include "GameData\GameData.h"
+#include "GameData/GameData.h"
 
 #define ATTACK_DISTANCE 3
 

@@ -1,6 +1,10 @@
 #pragma once
 #include "gladiator.h"
-#define max_parth_finder_size 24
+#include "Asservissement/Asservissement.h"
+#ifndef max_parth_finder_size
+#define max_parth_finder_size 32
+#endif
+
 
 struct coordonnees
 {
@@ -18,6 +22,8 @@ class GameState
 {
 public:
     Gladiator *gladiator;
+    Asservissement *motors;
+
     RobotData myData;
     RobotData allyData;
     RobotData er1Data;
@@ -27,10 +33,11 @@ public:
 
     float squareSize;
 
+    int count;
     pathFinder coord_list;
     pathFinder simplified_coord_list;
 
-    GameState(Gladiator *gladiator);
+    GameState(Gladiator *gladiator, Asservissement *motors);
 
     void Update();
     void reset();

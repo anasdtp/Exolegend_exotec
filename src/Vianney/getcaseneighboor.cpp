@@ -1,4 +1,4 @@
-#include "getCaseNeighboor.h"
+#include "getcaseneighboor.h"
 #include <vector>
 
 using namespace std;

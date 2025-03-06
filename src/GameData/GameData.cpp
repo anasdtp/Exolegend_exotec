@@ -1,7 +1,8 @@
 #include "GameData.h"
 
-GameState::GameState(Gladiator *gladiator){
+GameState::GameState(Gladiator *gladiator, Asservissement *motors){
     this->gladiator = gladiator;
+    this->motors = motors;
     this->reset();
 }
 
@@ -13,6 +14,7 @@ void GameState::Update(){
 }
 
 void GameState::reset(){
+    count = 0;
     myData = gladiator->robot->getData();
 
     bool enn_init = true;

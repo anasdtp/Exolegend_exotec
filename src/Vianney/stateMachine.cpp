@@ -1,77 +1,116 @@
 #include "stateMachine.h"
 #include "GameData/GameData.h"
 #include <vector>
-StateMachine::StateMachine(GameState *game) : game(game), currentState(State::ATTENTE) {}
+#include "Asservissement/Asservissement.h"
+#include "Asservissement/goto.h"
 
-void StateMachine::transition()
+StateMachine::StateMachine(GameState *game) : game(game), currentState(State::EXPLORATION) {
+    etat_exploration = 0;
+}
+
+void StateMachine::machine()
 {
     bool t_recherche_fusee = !game->gladiator->weapon->canLaunchRocket();
     bool t_ennemi_proche = ennemi_proche(game->gladiator);
     bool t_recherche_cible = true;
     bool t_tirer = true;
-    game->gladiator->log("Possède une fusée : %d", t_recherche_fusee);
+    // game->gladiator->log("void StateMachine::transition() : Possède une fusée : %d", t_recherche_fusee);
 
     switch (currentState)
     {
-        case State::ATTENTE:
-            if (t_ennemi_proche)
-            {
-                currentState = State::PVP;
-            }
-            if (t_recherche_fusee)
-            {
-                currentState = State::RECHERCHE_FUSEE;
-            }
-            else
-            {
-                currentState = State::EXPLORATION;
-            }
-            break;
+    case State::ATTENTE:
+        if (t_ennemi_proche)
+        {
+            currentState = State::PVP;
+        }
+        else if (t_recherche_fusee)
+        {
+            currentState = State::RECHERCHE_FUSEE;
+        }
+        else
+        {
+            currentState = State::EXPLORATION;
+        }
+        break;
 
-        case State::RECHERCHE_FUSEE:
-            currentState = State::ATTENTE;
-            break;
+    case State::RECHERCHE_FUSEE:
+        new_missile(game);
+        currentState = State::ATTENTE;
 
-        case State::EXPLORATION:
-            {
-                std::vector<int> path = BFSPruned(game);
-                if (t_recherche_cible)
-                {
-                    currentState = State::RECHERCHE_CIBLE;
-                }
-                if (t_ennemi_proche)
-                {
-                    currentState = State::PVP;
-                }
-                else
-                {
-                    currentState = State::ATTENTE;
-                }
+        break;
+
+    case State::EXPLORATION:
+    {
+        switch (etat_exploration)
+        {
+        case 0:
+        {
+            int testPath[5][2] = {{6, 4}, {1, 2}, {2, 3}, {3, 4}, {4, 5}};
+            for(int k = 0; k < 1; k++){
+                int i = testPath[k][0];
+                int j = testPath[k][1];
+                game->gladiator->log("case à visitée :%d,%d", i, j);
+                game->simplified_coord_list.path_coord[game->count].i = i;
+                game->simplified_coord_list.path_coord[game->count].j = j;
+                game->count = (game->count + 1)%max_parth_finder_size;
             }
-            break;
-
-        case State::PVP:
-            executePVP();
-            currentState = State::ATTENTE;
-            break;
-
-        case State::RECHERCHE_CIBLE:
-            t_recherche_cible = false;
-            if (t_tirer)
-            {
-                currentState = State::TIRER;
+            etat_exploration = 1;
+        }
+        break;
+        case 1 :
+        {
+            if(!followPath(game)){
+                etat_exploration = 2;
             }
-            else
-            {
-                currentState = State::EXPLORATION;
-            }
-            break;
-
-        case State::TIRER:
-            game->gladiator->weapon->launchRocket();
-            currentState = State::ATTENTE;
+        }
+        break;
+        case 2:
+        {
+            etat_exploration = 2;
+        }
+        break;
+        default:
+            etat_exploration = 0;
             break;
         }
+        
+        // if (t_recherche_cible)
+        // {
+        //     currentState = State::RECHERCHE_CIBLE;
+        // }
+        // if (t_ennemi_proche)
+        // {
+        //     currentState = State::PVP;
+        // }
+        // else
+        // {
+        //     currentState = State::ATTENTE;
+        // }
+    }
+    break;
+
+    case State::PVP:
+        executePVP();
+        currentState = State::ATTENTE;
+        break;
+
+    case State::RECHERCHE_CIBLE:
+        t_recherche_cible = false;
+        if (t_tirer)
+        {
+            currentState = State::TIRER;
+        }
+        else
+        {
+            currentState = State::EXPLORATION;
+        }
+        break;
+
+    case State::TIRER:
+        game->gladiator->weapon->launchRocket();
+        currentState = State::ATTENTE;
+        break;
+    }
 }
 void StateMachine::executePVP()
 {
