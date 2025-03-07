@@ -29,12 +29,14 @@ void reset()
 {
     // fonction de reset:
     game->reset();
+    robot_state_machine->reset();
 
     // initialisation de toutes vos variables avant le début d'un match
     game->goal = gladiator->robot->getData().position;
 
     Serial.println("Game Start ! ");
-    motors->setTargetPos(game->goal);
+    Position target = {game->goal.x, game->goal.y +1, 0};
+    motors->setTargetPos(target);
 }
 
 void loop()
@@ -44,10 +46,10 @@ void loop()
         // code de votre stratégie
         game->Update();
 
-        if (TempsEchantionnage(TE_10MS))
+        if (TempsEchantionnage(TE_MS))
         {
             motors->positionControl(motors->getTargetPos());
         }
-        robot_state_machine->machine();
+        // robot_state_machine->machine();
     }
 }

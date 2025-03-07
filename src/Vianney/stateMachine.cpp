@@ -8,6 +8,12 @@ StateMachine::StateMachine(GameState *game) : game(game), currentState(State::EX
     etat_exploration = 0;
 }
 
+void StateMachine::reset()
+{
+    currentState = State::EXPLORATION;
+    etat_exploration = 0;
+}
+
 void StateMachine::machine()
 {
     bool t_recherche_fusee = !game->gladiator->weapon->canLaunchRocket();
@@ -45,7 +51,7 @@ void StateMachine::machine()
         {
         case 0:
         {
-            int testPath[5][2] = {{6, 4}, {1, 2}, {2, 3}, {3, 4}, {4, 5}};
+            int testPath[5][2] = {{1, 7}, {3, 5}, {2, 3}, {3, 4}, {4, 5}};
             for(int k = 0; k < 1; k++){
                 int i = testPath[k][0];
                 int j = testPath[k][1];
@@ -126,3 +132,4 @@ void StateMachine::executePVP()
     }
     SpartanMode(game);
 }
+

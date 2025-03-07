@@ -47,21 +47,24 @@ bool TempsEchantionnage(unsigned long TIME)
 Asservissement::Asservissement(Gladiator* gladiator){
     this->gladiator = gladiator;
 
-    v_max = 0.1f; acc_max = 0.1f;
+    v_max = 0.8f; acc_max = 0.6f;
     
     ta = v_max / acc_max;
     d_max = v_max * v_max / acc_max;
 
-    integral = 0.f; prev_error = 0.f;
-    this->handlePIDCoef(0.01f, 0.f, 0.1f);
+    goTo.Kp = 0.01f; goTo.Ki = 0.0f; goTo.Kd = 0.f;
+    goTo.integral = 0; goTo.prev_error = 0;
 
-    Threshold = 0.01f; 
+    rotation.Kp = 1.8f; rotation.Ki = 0.001f; rotation.Kd = 0.01f;
+    rotation.integral = 0; rotation.prev_error = 0;
+
+    Threshold = 0.05f; 
     toleranceAngle = 8.f * PI/180.f;
     consvl = 0;
     consvr = 0;
 
-    kw = 3.f * 2.f;
-    kv = 0.75f * 2.f;
+    kw = 0.5f;//3.f * 2.f;
+    kv = 0.5f;//0.75f * 2.f;
     erreurPos = 0.07f;
 
     etat_automate_depl = INITIALISATION;
@@ -113,20 +116,21 @@ float Asservissement::trajectoire(float time, FuncType velocityProfile)
     return trajectory;
 }
 
-void Asservissement::handlePIDCoef(float Kp, float Ki, float Kd){
-    this->Kp = Kp;
-    this->Ki = Ki;
-    this->Kd = Kd;
+void Asservissement::handlePIDCoef(PIDCoef &pidGoTo, PIDCoef &pidRotation){
+    goTo = pidGoTo;
+    rotation = pidRotation;
+    goTo.integral = 0; goTo.prev_error = 0;
+    rotation.integral = 0; rotation.prev_error = 0;
 }
 
 // Function to calculate PID control output
-float Asservissement::calculatePID(float error, float dt)
+float Asservissement::calculatePID(float error, float dt, PIDCoef &pid)
 {
     // Variables for PID control
-    integral += error * dt;
-    float derivative = (error - prev_error) / dt;
-    float output = Kp * error + Ki * integral + Kd * derivative;
-    prev_error = error;
+    pid.integral += error * dt;
+    float derivative = (error - pid.prev_error) / dt;
+    float output = pid.Kp * error + pid.Ki * pid.integral + pid.Kd * derivative;
+    pid.prev_error = error;
     return output;
 }
 
@@ -149,11 +153,22 @@ void Asservissement::positionControl(Position targetPos)
 
         if(getDistance(currentPos, targetPos) > Threshold){
             etat_automate_depl = GO_TO_POS;
-            Serial.println("----------------------------------case INITIALISATION : etat_automate_depl = GO_TO_POS");
+            float dx = targetPos.x - currentPos.x;
+            float dy = targetPos.y - currentPos.y;
+            float angleDifference = atan2(dy, dx);
             ta = v_max / acc_max;
             d_max = v_max * v_max / acc_max;
-
             traj = fnVitesse2(currentPos, targetPos);
+            
+            if(abs(angleDifference) > toleranceAngle){
+                etat_automate_depl = ROTATION;
+                Serial.println("case INITIALISATION -> ROTATION");
+            }
+            else{
+                Serial.println("case INITIALISATION -> GO_TO_POS");
+            }
+
+            robot_radius = gladiator->robot->getRobotRadius();
             flag_available = false;
         }
         else{
@@ -171,7 +186,7 @@ void Asservissement::positionControl(Position targetPos)
         float error = trajectory + getDistance(currentPos, targetPos);
         // gladiator->log("Position currentPos.x = %f, currentPos.y = %f, currentPos.a = %f, error = %f",currentPos.x, currentPos.y, currentPos.a, error);
         // gladiator->log("error = %f", error);
-        float pidOutput = calculatePID(error, dt);
+        float pidOutput = calculatePID(error, dt, goTo);
         // // gladiator->log("pidOutput = %f", pidOutput);
         
         // // gladiator->log("trajectory = %f", trajectory);
@@ -201,8 +216,8 @@ void Asservissement::positionControl(Position targetPos)
                 consv = -consv; // Move backward if turning more than 90 degrees
             }
 
-            consvl = consv - gladiator->robot->getRobotRadius() * consw; // GFA 3.6.2
-            consvr = consv + gladiator->robot->getRobotRadius() * consw; // GFA 3.6.2
+            consvl = consv - (robot_radius * consw); // GFA 3.6.2
+            consvr = consv + (robot_radius * consw); // GFA 3.6.2
         }
         else
         {
@@ -210,11 +225,12 @@ void Asservissement::positionControl(Position targetPos)
             consvl = 0;
         }
 
+
         if ((error < Threshold) || ((consvl + consvr) == 0))
         {
             // Serial.println("case GO_TO_POS : etat_automate_depl = ROTATION");
             // etat_automate_depl = ROTATION;
-            // Serial.println("case GO_TO_POS : etat_automate_depl = ARRET");
+            Serial.println("case GO_TO_POS -> ARRET");
             etat_automate_depl = ARRET;
             flag_available = true;
         }
@@ -224,35 +240,45 @@ void Asservissement::positionControl(Position targetPos)
         consvr += pidOutput;
     }
     break;
-    case ROTATION: {
-            dt = (millis() - start_time) * 0.001f;
-            float Ka = 1;
-            // currentPos = gladiator->robot->getData().position;
-            // Calculate the angular difference between the target and current orientation
-            float angleDifference = reductionAngle(targetPos.a - currentPos.a);
-            float correctionSpeed = Ka * calculatePID(angleDifference, dt);
+    case ROTATION:
+    {
+        dt = (millis() - start_time) * 0.001f;
+        
+        // Calcul de l'angle cible
+        float dx = targetPos.x - currentPos.x;
+        float dy = targetPos.y - currentPos.y;
+        float targetAngle = atan2(dy, dx);
+        
+        // Calcul de l'erreur angulaire
+        float angleError = reductionAngle(targetAngle - currentPos.a);
+        
+        // Log pour le debug
+        // gladiator->log("currentPos.a = %f, targetAngle = %f, angleError = %f", currentPos.a, targetAngle, angleError);
+        
+        // Application du correcteur PID
+        float pidOutput = calculatePID(angleError, dt, rotation);
+        
+        // Calcul de la commande angulaire avec PID
+        // float consw = pidOutput;
 
-            // float pidOutput = calculatePID(angleDifference, dt);
-            // Apply the correction speeds to the wheels
-            consvl = correctionSpeed;
-            consvr = -correctionSpeed;
-
-            gladiator->log("angleDifference : %f,dt : %f, correctionSpeed : %f, consvl : %f, consvr : %f", angleDifference, dt, correctionSpeed, consvl, consvr);
-            // consvl += pidOutput;
-            // consvr -= pidOutput;
-
-            // Check if the correction is complete
-            if (abs(angleDifference) <= toleranceAngle) {
-                gladiator->log("case ROTATION : etat_automate_depl = ARRET, toleranceAngle : %f", toleranceAngle);
-                etat_automate_depl = ARRET;
-                consvr = 0;
-                consvl = 0;
-            }
+        // Calcul des vitesses des roues en rotation pure
+        consvl = -pidOutput * robot_radius;
+        consvr = pidOutput * robot_radius;
+        
+        // Si l'erreur angulaire est suffisamment petite, on arrête la rotation
+        if (abs(angleError) < toleranceAngle)
+        {
+            consvr = 0;
+            consvl = 0;
+            etat_automate_depl = GO_TO_POS;
+            // Serial.println("case ROTATION -> GO_TO_POS\n");
         }
-        break;
+    }
+    break;
+
     case ARRET:
     {
-        Serial.println("case ARRET\n");
+        Serial.println("case ARRET -> INITIALISATION\n");
         flag_available = true;
         etat_automate_depl = INITIALISATION;
         consvr = 0;

@@ -24,6 +24,9 @@ public:
     int etat_exploration;
     StateMachine(GameState *game);
 
+    void reset();
+
     void machine();
     void executePVP();
+
 };
